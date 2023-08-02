@@ -12,9 +12,17 @@ use Symfony\Component\Validator\ConstraintViolationList;
 use Symfony\Component\Validator\Validator\ValidatorInterface;
 use Symfony\Bridge\Attribute\MapRequestPayload;
 use Symfony\Bridge\Attribute\MapQueryString;
+use Doctrine\ORM\EntityManagerInterface;
 
 class RequestController extends AbstractController
 {
+    private $entityManager;
+
+    public function __construct(EntityManagerInterface $entityManager)
+    {
+        $this->entityManager = $entityManager;
+    }
+
     #[Route('/questions', name: 'add_question', methods: ['POST'])]
     #[MapRequestPayload]
     public function addQuestion(Question $question, ValidatorInterface $validator): Response
@@ -26,14 +34,13 @@ class RequestController extends AbstractController
             return new Response($errorsString);
         }
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($question);
-        $entityManager->flush();
+        $this->entityManager->persist($question);
+        $this->entityManager->flush();
 
         return new Response('Saved new question with id '.$question->getId());
     }
 
-  #[Route('/questions/{id}/answers', name:'add_answer', methods:['POST'])]
+    #[Route('/questions/{id}/answers', name:'add_answer', methods:['POST'])]
     #[MapRequestPayload]
     public function addAnswer(Question $question, Answer $answer, ValidatorInterface $validator): Response
     {
@@ -46,9 +53,8 @@ class RequestController extends AbstractController
 
         $answer->setQuestion($question);
 
-        $entityManager = $this->getDoctrine()->getManager();
-        $entityManager->persist($answer);
-        $entityManager->flush();
+        $this->entityManager->persist($answer);
+        $this->entityManager->flush();
 
         return new Response('Saved new answer with id '.$answer->getId());
     }
@@ -62,7 +68,7 @@ class RequestController extends AbstractController
     #[Route('/questions', name:'get_questions', methods: ['GET'])]
     public function getQuestions(): Response
     {
-        $questions = $this->getDoctrine()->getRepository(Question::class)->findAll();
+        $questions = $this->entityManager->getRepository(Question::class)->findAll();
         return $this->json($questions);
     }
 }
