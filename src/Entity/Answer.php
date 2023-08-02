@@ -4,6 +4,7 @@ namespace App\Entity;
 
 use App\Repository\AnswerRepository;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: AnswerRepository::class)]
 class Answer
@@ -14,6 +15,10 @@ class Answer
     private ?int $id = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Choice(
+        choices: ['faq', 'bot'],
+        message: 'Invalid channel.',
+    )]
     private ?string $channel = null;
 
     #[ORM\Column(length: 255, nullable: true)]

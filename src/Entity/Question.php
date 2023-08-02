@@ -6,6 +6,7 @@ use App\Repository\QuestionRepository;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use Doctrine\ORM\Mapping as ORM;
+use Symfony\Component\Validator\Constraints as Assert;
 
 #[ORM\Entity(repositoryClass: QuestionRepository::class)]
 class Question
@@ -22,6 +23,10 @@ class Question
     private ?string $promoted = null;
 
     #[ORM\Column(length: 255, nullable: true)]
+    #[Assert\Choice(
+        choices: ['draft', 'published'],
+        message: 'Invalid status.',
+    )]
     private ?string $status = null;
 
     #[ORM\Column]
